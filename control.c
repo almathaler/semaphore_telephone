@@ -7,9 +7,11 @@
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <unistd.h>
-
 #include "control.h"
+
+#define KEY 24601
 
 int main(int argc, char * argv[]){
   char * cmd_line = argv[1]; //first arg is name of program
@@ -53,7 +55,24 @@ int crv(char* cmd_line){
 }
 
 int c(){
-  printf("in create\n");
+  printf("in create -- NOTE: you may not create twice in a row!\n");
+
+  printf("creating file...\n");
+  int fd;
+  fd = open("telephone.txt", O_CREAT|O_EXCL|O_TRUNC, 0666);
+  if (fd == -1){
+    printf("You Trickster! You've already done \"./control -c\"! Quitting...\n");
+    exit(0);
+  }
+  printf("\"telephone.txt\" created...\n");
+
+  printf("creating shared memory...\n");
+  //NOTE: TO GET LAST LINE, MAKE SIZE OF LAST LINE IN SHARED MEM AND WHEN PRINTING USE LSEEK TO MOVE CURSOR
+  int shmd;
+  shmd = shmget(KEY, sizeof(int), IPC_CREAT|0644); //made it, don't really need to touch it
+
+  printf("creating semaphore...\n");
+  
   return 0;
 }
 
