@@ -88,6 +88,13 @@ int c(){
     printf("error: %d: %s\n", errno, strerror(errno));
   }
   printf("shmd: %d\n", shmd);
+  //set initial val to 0
+  printf("setting shared mem initial val to 0...\n");
+  int *set_zero = shmat(shmd, 0, 0);
+  *set_zero = 0;
+  printf("set shared mem intial val to: %d\n", *set_zero);
+  shmdt(set_zero);
+  //
   //this created it, do similar in write so you can view what was previously written
   printf("creating semaphore...\n");
   int semd;
@@ -110,7 +117,8 @@ int c(){
 
 int r(){
   printf("in remove\n");
-  //v(); //so you can see what's there so far
+  v(); //so you can see what's there so far
+  printf("\n");
   printf("first seeing if semaphore is open...\n");
   int semd = semget(KEY, 1, 0);
   struct sembuf sb;
