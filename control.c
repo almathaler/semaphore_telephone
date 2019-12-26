@@ -12,16 +12,21 @@
 #include "control.h"
 
 #define KEY 24601
+#define FNAME "telephone.txt"
 
-union semun {
-  int              val;    /* Value for SETVAL */
-  struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
-  unsigned short  *array;  /* Array for GETALL, SETALL */
-  struct seminfo  *__buf;  /* Buffer for IPC_INFO
-                              (Linux-specific) */
-};
+// union semun {
+//   int              val;    /* Value for SETVAL */
+//   struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
+//   unsigned short  *array;  /* Array for GETALL, SETALL */
+//   struct seminfo  *__buf;  /* Buffer for IPC_INFO
+//                               (Linux-specific) */
+// };
 
 int main(int argc, char * argv[]){
+  if (argc < 2){
+    printf("You haven't selected c, v or r! Quitting...\n");
+    exit(0);
+  }
   char * cmd_line = argv[1]; //first arg is name of program
   int to_do = crv(cmd_line);
   switch (to_do) {
@@ -67,7 +72,7 @@ int c(){
 
   printf("creating file...\n");
   int fd;
-  fd = open("telephone.txt", O_CREAT|O_EXCL|O_TRUNC, 0666);
+  fd = open(FNAME, O_CREAT|O_EXCL|O_TRUNC, 0666);
   if (fd == -1){
     printf("You Trickster! You've already done \"./control -c\"! Quitting...\n");
     exit(0);
@@ -77,15 +82,54 @@ int c(){
   printf("creating shared memory...\n");
   //NOTE: TO GET LAST LINE, MAKE SIZE OF LAST LINE IN SHARED MEM AND WHEN PRINTING USE LSEEK TO MOVE CURSOR
   int shmd;
-  shmd = shmget(KEY, sizeof(int), IPC_CREAT|0644); //made it, don't really need to touch it
+  shmd = shmget(KEY, sizeof(int), IPC_CREAT|0644);
+  if (shmd == -1){
+    printf("error: %d: %s\n", errno, strerror(errno));
+  }
+  printf("shmd: %d\n", shmd);
   //this created it, do similar in write so you can view what was previously written
   printf("creating semaphore...\n");
-
+  int semd;
+  int v, r;
+  semd = semget(KEY, 1, IPC_CREAT | IPC_EXCL | 0644);
+  if (semd == -1) {
+    printf("error %d: %s\n", errno, strerror(errno));
+    semd = semget(KEY, 1, 0);
+    v = semctl(semd, 0, GETVAL, 0);
+    printf("semctl returned: %d\n", v);
+  }
+  else {
+    union semun us;
+    us.val = 1;
+    r = semctl(semd, 0, SETVAL, us);
+    printf("semctl returned: %d\n", r);
+  }
   return 0;
 }
 
 int r(){
   printf("in remove\n");
+  //v(); //so you can see what's there so far
+  printf("removing shared memory...\n");
+  int shmd = shmget(KEY, sizeof(int), 0);
+  if (shmctl(shmd, IPC_RMID, 0)){
+    printf("error %d: %s\n", errno, strerror(errno));
+  }
+  printf("removed shared mem\n");
+  printf("removing the file...\n");
+  if (remove(FNAME)){
+    printf("error %d: %s\n", errno, strerror(errno));
+  }
+  printf("removed the file\n");
+  printf("removing semaphore...\n");
+  int semd = semget(KEY, 1, 0);
+  if (semd == -1){
+    printf("error %d: %s\n", errno, strerror(errno));
+  }
+  if(semctl(semd, IPC_RMID, 0)){
+    printf("error %d: %s\n", errno, strerror(errno));
+  }
+  printf("removed semaphore\n");
   return 0;
 }
 
