@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include "control.h"
 
 #define KEY 24601
@@ -144,6 +145,25 @@ int r(){
 }
 
 int v(){
-  printf("in view\n");
+  printf("The story so far:\n");
+  //to decide how much to read from, get size of file
+  struct stat file_stat;
+  if (stat(FNAME, &file_stat)){
+    printf("you've encountered an error! perhaps you've done ./control -r or have not yet done ./control -c\n");
+    exit(0);
+  }
+  int size = file_stat.st_size;
+  //now read in then printf
+  if (size == 0){
+    printf("\n");
+    return 0;
+  }
+  char to_print[size];
+  int fd = open(FNAME, O_RDONLY);
+  int check = read(fd, to_print, size);
+  if (check != size){
+    printf("For some reason, didn't read whole file\n");
+  }
+  printf("%s", to_print);
   return 0;
 }
