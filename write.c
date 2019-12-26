@@ -38,25 +38,25 @@ int main(){
   printf("it is, continuing\n");
   //
   //use shared mem to see length of last line, along with lseek and whence
-  printf("using shared memory to see length of last line...\n");
+  //printf("using shared memory to see length of last line...\n");
   int shmd = shmget(KEY, sizeof(int), 0);
   if (shmd == -1){
     printf("error %d: %s\n", errno, strerror(errno));
     exit(0);
   }
-  printf("shmd: %d\n", shmd);
+  //printf("shmd: %d\n", shmd);
   //
   int * size_last = shmat(shmd, 0, 0);
-  printf("length of last line: %d\n", *size_last);
+  //printf("length of last line: %d\n", *size_last);
   //
   //display that last line (open, lseek, read, print, close)
   int fd = open(FNAME, O_RDONLY);
-  printf("moving cursor to show just last line...\n");
+  //printf("moving cursor to show just last line...\n");
   if (lseek(fd, (*size_last * -1), SEEK_END) == -1){
     printf("error %d: %s\n", errno, strerror(errno));
     exit(0);
   }
-  printf("moved cursor\n");
+  //printf("moved cursor\n");
   //
   char to_print[*size_last];
   if (read(fd, to_print, *size_last) == -1){
@@ -65,12 +65,12 @@ int main(){
   }
   printf("last addition: %s\n", to_print);
   //
-  printf("closing file...\n");
+  //printf("closing file...\n");
   if (close(fd) == -1){
     printf("error %d: %s\n", errno, strerror(errno));
     exit(0);
   }
-  printf("closed\n");
+  //printf("closed\n");
   //
   //add new line (fgets, open w write + append, update shmem, write, close, release sem)
   printf("enter your addition:\n");
@@ -81,18 +81,18 @@ int main(){
   //
   fd = open(FNAME, O_WRONLY|O_APPEND);
   //update shmem
-  printf("updating shmem...\n");
+  //printf("updating shmem...\n");
   *size_last = strlen(addition);
-  printf("shmem updated\n");
+  //printf("shmem updated\n");
   //write
-  printf("writing to %s...\n", FNAME);
+  //printf("writing to %s...\n", FNAME);
   if (write(fd, addition, *size_last) == -1){
     printf("error %d: %s\n", errno, strerror(errno));
     exit(0);
   }
-  printf("wrote\n");
+  //printf("wrote\n");
   //close
-  printf("closing, detaching and releasing...\n");
+  //printf("closing, detaching and releasing...\n");
   if (close(fd) == -1){
     printf("error %d: %s\n", errno, strerror(errno));
     exit(0);
@@ -103,6 +103,6 @@ int main(){
   sb.sem_op = 1;
   semop(semd, &sb, 1);
   //
-  printf("done in writing\n");
+  //printf("done in writing\n");
   return 0;
 }

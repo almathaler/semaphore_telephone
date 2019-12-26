@@ -32,19 +32,19 @@ int main(int argc, char * argv[]){
   int to_do = crv(cmd_line);
   switch (to_do) {
     case 0:
-      printf("you've selected CREATE:\n");
+      //printf("you've selected CREATE:\n");
       if (c()){
         printf("Something went wrong! In CREATE\n");
       }
       break;
     case 1:
-      printf("you've selected REMOVE:\n");
+      //printf("you've selected REMOVE:\n");
       if (r()){
         printf("Something went wrong! In REMOVE\n");
       }
       break;
     case 2:
-      printf("you've selected VIEW:\n");
+      //printf("you've selected VIEW:\n");
       if (v()){
         printf("Something went wrong! In VIEW\n");
       }
@@ -69,9 +69,9 @@ int crv(char* cmd_line){
 }
 
 int c(){
-  printf("in create -- NOTE: you may not create twice in a row!\n");
+  printf("NOTE: you may not create twice in a row!\n");
 
-  printf("creating file...\n");
+  //printf("creating file...\n");
   int fd;
   fd = open(FNAME, O_CREAT|O_EXCL|O_TRUNC, 0666);
   if (fd == -1){
@@ -80,23 +80,24 @@ int c(){
   }
   printf("\"telephone.txt\" created...\n");
 
-  printf("creating shared memory...\n");
+  //printf("creating shared memory...\n");
   //NOTE: TO GET LAST LINE, MAKE SIZE OF LAST LINE IN SHARED MEM AND WHEN PRINTING USE LSEEK TO MOVE CURSOR
   int shmd;
   shmd = shmget(KEY, sizeof(int), IPC_CREAT|0644);
   if (shmd == -1){
     printf("error: %d: %s\n", errno, strerror(errno));
   }
-  printf("shmd: %d\n", shmd);
+  //printf("shmd: %d\n", shmd);
   //set initial val to 0
-  printf("setting shared mem initial val to 0...\n");
+  //printf("setting shared mem initial val to 0...\n");
   int *set_zero = shmat(shmd, 0, 0);
   *set_zero = 0;
-  printf("set shared mem intial val to: %d\n", *set_zero);
+  //printf("set shared mem intial val to: %d\n", *set_zero);
   shmdt(set_zero);
+  printf("shared memory created\n");
   //
   //this created it, do similar in write so you can view what was previously written
-  printf("creating semaphore...\n");
+  //printf("creating semaphore...\n");
   int semd;
   int v, r;
   semd = semget(KEY, 1, IPC_CREAT | IPC_EXCL | 0644);
@@ -104,19 +105,20 @@ int c(){
     printf("error %d: %s\n", errno, strerror(errno));
     semd = semget(KEY, 1, 0);
     v = semctl(semd, 0, GETVAL, 0);
-    printf("got value of existing semaphore, semctl returned: %d\n", v);
+    //printf("got value of existing semaphore, semctl returned: %d\n", v);
   }
   else {
     union semun us;
     us.val = 1;
     r = semctl(semd, 0, SETVAL, us);
-    printf("set value of our semaphore to %d, semctl returned: %d\n", us.val, r);
+    //printf("set value of our semaphore to %d, semctl returned: %d\n", us.val, r);
   }
+  printf("created semaphore, done creating\n");
   return 0;
 }
 
 int r(){
-  printf("in remove\n");
+  //printf("in remove\n");
   v(); //so you can see what's there so far
   printf("\n");
   printf("first seeing if semaphore is open...\n");
@@ -127,7 +129,7 @@ int r(){
   semop(semd, &sb, 1);
   printf("it is, continuing\n");
   //
-  printf("removing semaphore...\n");
+  //printf("removing semaphore...\n");
   if (semd == -1){
     printf("error %d: %s\n", errno, strerror(errno));
   }
@@ -136,14 +138,14 @@ int r(){
   }
   printf("removed semaphore\n");
   //
-  printf("removing shared memory...\n");
+  //printf("removing shared memory...\n");
   int shmd = shmget(KEY, sizeof(int), 0);
   if (shmctl(shmd, IPC_RMID, 0)){
     printf("error %d: %s\n", errno, strerror(errno));
   }
   printf("removed shared mem\n");
   //
-  printf("removing the file...\n");
+  //printf("removing the file...\n");
   if (remove(FNAME)){
     printf("error %d: %s\n", errno, strerror(errno));
   }
