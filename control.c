@@ -13,6 +13,14 @@
 
 #define KEY 24601
 
+union semun {
+  int              val;    /* Value for SETVAL */
+  struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
+  unsigned short  *array;  /* Array for GETALL, SETALL */
+  struct seminfo  *__buf;  /* Buffer for IPC_INFO
+                              (Linux-specific) */
+};
+
 int main(int argc, char * argv[]){
   char * cmd_line = argv[1]; //first arg is name of program
   int to_do = crv(cmd_line);
@@ -70,9 +78,9 @@ int c(){
   //NOTE: TO GET LAST LINE, MAKE SIZE OF LAST LINE IN SHARED MEM AND WHEN PRINTING USE LSEEK TO MOVE CURSOR
   int shmd;
   shmd = shmget(KEY, sizeof(int), IPC_CREAT|0644); //made it, don't really need to touch it
-
+  //this created it, do similar in write so you can view what was previously written
   printf("creating semaphore...\n");
-  
+
   return 0;
 }
 
