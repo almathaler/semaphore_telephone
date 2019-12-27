@@ -127,13 +127,13 @@ int r(){
     printf("error %d: %s\n", errno, strerror(errno));
     exit(0);
   }
-  int v = semctl(semd, 0, GETVAL, 0);
+  int view = semctl(semd, 0, GETVAL, 0);
   printf("val of semaphore returned: %d\n", v);
   struct sembuf sb;
   sb.sem_num = 0;
   sb.sem_op = -1;
   semop(semd, &sb, 1);
-  v = semctl(semd, 0, GETVAL, 0);
+  view = semctl(semd, 0, GETVAL, 0);
   printf("after down, val of semaphore returned: %d\n", v);
   printf("it is, continuing\n");
   //print story
