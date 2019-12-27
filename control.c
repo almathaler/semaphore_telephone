@@ -70,7 +70,7 @@ int crv(char* cmd_line){
 
 int c(){
   printf("NOTE: you may not create twice in a row!\n");
-
+  printf("also, please note that removing while in the midst of writing\nwill cause a null char to be printed as part of the story\n");
   //printf("creating file...\n");
   int fd;
   fd = open(FNAME, O_CREAT|O_EXCL|O_TRUNC, 0666);
