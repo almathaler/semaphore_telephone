@@ -31,6 +31,8 @@ int main(){
     printf("error %d: %s\n", errno, strerror(errno));
     exit(0);
   }
+  int v = semctl(semd, 0, GETVAL, 0);
+  printf("val of semaphore returned: %d\n", v);
   struct sembuf sb;
   sb.sem_num = 0;
   sb.sem_op = -1;
