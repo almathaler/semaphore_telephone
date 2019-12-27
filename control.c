@@ -128,13 +128,13 @@ int r(){
     exit(0);
   }
   int view = semctl(semd, 0, GETVAL, 0);
-  printf("val of semaphore returned: %d\n", v);
+  printf("val of semaphore returned: %d\n", view);
   struct sembuf sb;
   sb.sem_num = 0;
   sb.sem_op = -1;
   semop(semd, &sb, 1);
   view = semctl(semd, 0, GETVAL, 0);
-  printf("after down, val of semaphore returned: %d\n", v);
+  printf("after down, val of semaphore returned: %d\n", view);
   printf("it is, continuing\n");
   //print story
 
