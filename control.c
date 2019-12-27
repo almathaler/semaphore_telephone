@@ -15,13 +15,13 @@
 #define KEY 24601
 #define FNAME "telephone.txt"
 
-// union semun {
-//   int              val;    /* Value for SETVAL */
-//   struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
-//   unsigned short  *array;  /* Array for GETALL, SETALL */
-//   struct seminfo  *__buf;  /* Buffer for IPC_INFO
-//                               (Linux-specific) */
-// };
+union semun {
+  int              val;    /* Value for SETVAL */
+  struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
+  unsigned short  *array;  /* Array for GETALL, SETALL */
+  struct seminfo  *__buf;  /* Buffer for IPC_INFO
+                              (Linux-specific) */
+};
 
 int main(int argc, char * argv[]){
   if (argc < 2){
@@ -119,7 +119,7 @@ int c(){
 
 int r(){
   //printf("in remove\n");
-  v(); //so you can see what's there so far
+
   printf("\n");
   printf("first seeing if semaphore is open...\n");
   int semd = semget(KEY, 1, 0);
@@ -136,7 +136,10 @@ int r(){
   v = semctl(semd, 0, GETVAL, 0);
   printf("after down, val of semaphore returned: %d\n", v);
   printf("it is, continuing\n");
-  //
+  //print story
+
+  v(); //so you can see what's there so far
+
   //printf("removing semaphore...\n");
   if (semd == -1){
     printf("error %d: %s\n", errno, strerror(errno));
