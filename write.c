@@ -32,7 +32,7 @@ int main(){
     exit(0);
   }
   int v = semctl(semd, 0, GETVAL, 0);
-  printf("val of semaphore returned: %d\n", v);
+  //printf("val of semaphore returned: %d\n", v);
   struct sembuf sb;
   sb.sem_num = 0;
   sb.sem_op = -1;

@@ -128,7 +128,7 @@ int r(){
     exit(0);
   }
   int view = semctl(semd, 0, GETVAL, 0);
-  printf("val of semaphore returned: %d\n", view);
+  //printf("val of semaphore returned: %d\n", view);
   struct sembuf sb;
   sb.sem_num = 0;
   sb.sem_op = -1;
